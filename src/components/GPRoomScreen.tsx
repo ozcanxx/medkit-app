@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Doodle, DoodleScatter, PatientFace, TopBar } from './primitives';
 import { CASES, getCase } from '../data/cases';
 import { CLINIC_IDS, CLINIC_LABELS, type ClinicId } from '../game/clinic';
@@ -33,6 +34,7 @@ const CLINIC_ICON: Record<ClinicId, string> = {
 };
 
 export function GPRoomScreen() {
+  const { t } = useTranslation();
   const tweaks = useTweaks();
   const state = useGameState();
   const activeClinic = state.polyclinic.clinic;
@@ -73,9 +75,9 @@ export function GPRoomScreen() {
 
       <div style={{ padding: '36px 36px 12px', textAlign: 'center' }}>
         <span className="chip butter" style={{ marginBottom: 12 }}>
-          🏥 GENERAL PRACTICE
+          {t('gpRoom.chip')}
         </span>
-        <h1 style={{ fontSize: 42, lineHeight: 1.05, marginTop: 12 }}>How would you like to start?</h1>
+        <h1 style={{ fontSize: 42, lineHeight: 1.05, marginTop: 12 }}>{t('gpRoom.heading')}</h1>
         <div
           style={{
             fontSize: 16,
@@ -86,7 +88,7 @@ export function GPRoomScreen() {
             margin: '8px auto 0',
           }}
         >
-          Pick a polyclinic and the next patient on the bench will walk straight in. Or browse the case folder.
+          {t('gpRoom.subtitle')}
         </div>
       </div>
 
@@ -117,7 +119,7 @@ export function GPRoomScreen() {
                 textTransform: 'uppercase',
               }}
             >
-              Specialty
+              {t('gpRoom.specialty')}
             </span>
             <span>
               {CLINIC_ICON[activeClinic]} {CLINIC_LABELS[activeClinic]}
@@ -183,7 +185,7 @@ export function GPRoomScreen() {
           }}
         >
           <div style={{ position: 'absolute', top: -14, left: 24 }} className="chip rose">
-            01 · ACCEPT
+            {t('gpRoom.accept')}
           </div>
           <div className="floaty" style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
             <div
@@ -223,7 +225,7 @@ export function GPRoomScreen() {
             </div>
           </div>
           <h2 style={{ fontSize: 28, lineHeight: 1.1, textAlign: 'center', marginBottom: 8 }}>
-            Accept the next patient
+            {t('gpRoom.acceptHeading')}
           </h2>
           <div
             style={{
@@ -236,8 +238,8 @@ export function GPRoomScreen() {
             }}
           >
             {next
-              ? `${next.name} walks in next — straight into the consultation.`
-              : `No cases queued for ${CLINIC_LABELS[activeClinic]} yet.`}
+              ? t('gpRoom.acceptNext', { name: next.name })
+              : t('gpRoom.noCases', { clinic: CLINIC_LABELS[activeClinic] })}
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap' }}>
             {next && (
@@ -249,7 +251,7 @@ export function GPRoomScreen() {
               </>
             )}
             <span className="chip butter">
-              {CLINIC_ICON[activeClinic]} {queueAhead} in {CLINIC_LABELS[activeClinic]}
+              {t('gpRoom.inClinic', { icon: CLINIC_ICON[activeClinic], count: queueAhead, clinic: CLINIC_LABELS[activeClinic] })}
             </span>
           </div>
         </div>
@@ -267,7 +269,7 @@ export function GPRoomScreen() {
           }}
         >
           <div style={{ position: 'absolute', top: -14, left: 24 }} className="chip butter">
-            02 · BROWSE
+            {t('gpRoom.browse')}
           </div>
           <div className="floaty" style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
             <div
@@ -285,7 +287,7 @@ export function GPRoomScreen() {
             </div>
           </div>
           <h2 style={{ fontSize: 28, lineHeight: 1.1, textAlign: 'center', marginBottom: 8 }}>
-            Pick from the charts
+            {t('gpRoom.browseHeading')}
           </h2>
           <div
             style={{
@@ -297,13 +299,13 @@ export function GPRoomScreen() {
               minHeight: 42,
             }}
           >
-            Open the case folder, filter by specialty or red-flag, attempted ribbons on completed.
+            {t('gpRoom.browseDesc')}
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap' }}>
             <span className="chip" style={{ background: 'white' }}>
-              📁 {totalAll} cases
+              {t('gpRoom.cases', { count: totalAll })}
             </span>
-            <span className="chip butter">filterable</span>
+            <span className="chip butter">{t('gpRoom.filterable')}</span>
           </div>
         </div>
       </div>
@@ -315,7 +317,7 @@ export function GPRoomScreen() {
           style={{ fontSize: 14, padding: '10px 18px' }}
           onClick={() => store.setScreen('mode')}
         >
-          ← Back to corridor
+          {t('gpRoom.backToCorridor')}
         </button>
       </div>
     </div>

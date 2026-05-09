@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Doodle, TopBar } from './primitives';
 import { store, useGameState } from '../game/store';
 import { getPatientCase } from '../data/cases';
@@ -342,33 +343,25 @@ function StatusBanner({
 
 // ── Live grading progress — animated step-by-step banner ───────────
 
-const GRADING_STEPS = [
-  'Replaying your conversation with the patient',
-  'Auditing the questions you asked during history-taking',
-  'Cross-checking the differential against the chief complaint',
-  'Reviewing the tests you ordered for relevance and coverage',
-  'Inspecting your prescriptions against the diagnosis',
-  'Comparing your management plan to clinical guidelines',
-  'Scoring data gathering, clinical management & interpersonal',
-  'Drafting personalised feedback for each criterion',
-];
+const GRADING_STEP_KEYS = ['step1','step2','step3','step4','step5','step6','step7','step8'] as const;
 
 function GradingProgress({ partialNarration }: { partialNarration: string }) {
+  const { t } = useTranslation();
   const [step, setStep] = useState(0);
+  const gradingSteps = GRADING_STEP_KEYS.map((k) => t(`debrief.${k}`));
 
   useEffect(() => {
-    if (partialNarration.length > 0) return; // stop ticking once narration arrives
+    if (partialNarration.length > 0) return;
     const id = window.setInterval(() => {
-      setStep((s) => Math.min(s + 1, GRADING_STEPS.length - 1));
+      setStep((s) => Math.min(s + 1, gradingSteps.length - 1));
     }, 1400);
     return () => window.clearInterval(id);
   }, [partialNarration.length > 0]);
 
-  // Once narration arrives, dump it into the banner instead of the steps.
   if (partialNarration.length > 0) {
     return (
       <StatusBanner
-        title={'The attending is grading\u2026'}
+        title={t('debrief.attending')}
         body={truncate(partialNarration, 320)}
         bg="var(--sky)"
       />
@@ -407,10 +400,10 @@ function GradingProgress({ partialNarration }: { partialNarration: string }) {
         </div>
         <div style={{ flex: 1 }}>
           <h1 style={{ fontSize: 32, lineHeight: 1.05, margin: '4px 0 12px' }}>
-            The attending is grading{'\u2026'}
+            {t('debrief.attending')}
           </h1>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {GRADING_STEPS.map((label, i) => {
+            {gradingSteps.map((label, i) => {
               const state = i < step ? 'done' : i === step ? 'active' : 'pending';
               const icon =
                 state === 'done' ? (
@@ -483,6 +476,7 @@ function GradingProgress({ partialNarration }: { partialNarration: string }) {
 // ── DebriefScreen ──────────────────────────────────────────────────
 
 export function DebriefScreen() {
+  const { t } = useTranslation();
   const state = useGameState();
 
   // Review-mode: when viewedEvalHistoryId is set, render a saved evaluation
@@ -548,13 +542,13 @@ export function DebriefScreen() {
       <div style={{ padding: '28px 36px 60px', maxWidth: 1080, margin: '0 auto' }}>
         {!c || !patient ? (
           <StatusBanner
-            title="No active case to debrief"
-            body="The encounter has already been cleared. Pick a new case from the library to start fresh."
+            title={t('debrief.noCase')}
+            body={t('debrief.caseCleared')}
             bg="var(--cream-2)"
           />
         ) : status === 'starting' || status === 'idle' ? (
           <StatusBanner
-            title={'Preparing your debrief\u2026'}
+            title={t('debrief.preparing')}
             body={`Packaging the encounter and the rubric (${summarise(debriefRequest)}). The attending will start grading in a moment.`}
             bg="var(--sky)"
           />
@@ -570,8 +564,8 @@ export function DebriefScreen() {
           <EvaluationBody evaluation={evaluation} patient={patient} c={c} />
         ) : (
           <StatusBanner
-            title="No evaluation yet"
-            body={'The attending hasn\u2019t emitted a result. If this persists, restart the encounter.'}
+            title={t('debrief.noEval')}
+            body={t('debrief.noEvalBody')}
             bg="var(--cream-2)"
           />
         )}
@@ -583,7 +577,7 @@ export function DebriefScreen() {
             style={{ flex: 1 }}
             onClick={() => store.setScreen('mode')}
           >
-            {'\u2190 Back to polyclinic'}
+            {t('debrief.backToPoly')}
           </button>
           <button
             type="button"
@@ -591,7 +585,7 @@ export function DebriefScreen() {
             style={{ flex: 1.6 }}
             onClick={() => store.setScreen('library')}
           >
-            {'Next case \u2192'}
+            {t('debrief.nextCase')}
           </button>
         </div>
       </div>
@@ -619,6 +613,7 @@ interface BodyProps {
 }
 
 function EvaluationBody({ evaluation, patient, c }: BodyProps) {
+  const { t } = useTranslation();
   const verdict = evaluation.global_rating;
   const dgItems = evaluation.criteria.filter((x) => x.domain === 'data_gathering');
   const cmItems = evaluation.criteria.filter((x) => x.domain === 'clinical_management');
@@ -685,7 +680,7 @@ function EvaluationBody({ evaluation, patient, c }: BodyProps) {
         }}
       >
         <div style={{ position: 'absolute', top: -14, left: 24 }} className="chip butter">
-          YOUR MARK
+          {t('debrief.yourMark')}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 22 }}>
           <div className="floaty">
@@ -713,7 +708,7 @@ function EvaluationBody({ evaluation, patient, c }: BodyProps) {
                 letterSpacing: '.06em',
               }}
             >
-              VERDICT
+              {t('debrief.verdict')}
             </div>
             <h1 style={{ fontSize: 38, lineHeight: 1.05, margin: '4px 0 8px' }}>
               {GLOBAL_HEADLINE[verdict].split(' \u2014 ')[0]}{' '}
@@ -729,26 +724,26 @@ function EvaluationBody({ evaluation, patient, c }: BodyProps) {
       </div>
 
       <div className="plush" style={{ padding: 18, marginBottom: 22 }}>
-        <SectionLabel>DOMAIN SCORES</SectionLabel>
+        <SectionLabel>{t('debrief.domainScores')}</SectionLabel>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14 }}>
-          <DomainRing label="Data Gathering" score={evaluation.domain_scores.data_gathering} />
-          <DomainRing label="Clinical Management" score={evaluation.domain_scores.clinical_management} />
-          <DomainRing label="Interpersonal" score={evaluation.domain_scores.interpersonal} />
+          <DomainRing label={t('domain.data_gathering')} score={evaluation.domain_scores.data_gathering} />
+          <DomainRing label={t('domain.clinical_management')} score={evaluation.domain_scores.clinical_management} />
+          <DomainRing label={t('domain.interpersonal')} score={evaluation.domain_scores.interpersonal} />
         </div>
       </div>
 
       {(dgItems.length + cmItems.length + ipItems.length) > 0 && (
         <div className="plush" style={{ padding: 18, marginBottom: 22 }}>
-          <SectionLabel>PER-CRITERION</SectionLabel>
+          <SectionLabel>{t('debrief.perCriterion')}</SectionLabel>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {dgItems.length > 0 && (
-              <CriterionGroup title="Data gathering" items={dgItems} labelMap={labelByCriterionId} />
+              <CriterionGroup title={t('domain.data_gathering')} items={dgItems} labelMap={labelByCriterionId} />
             )}
             {cmItems.length > 0 && (
-              <CriterionGroup title="Clinical management" items={cmItems} labelMap={labelByCriterionId} />
+              <CriterionGroup title={t('domain.clinical_management')} items={cmItems} labelMap={labelByCriterionId} />
             )}
             {ipItems.length > 0 && (
-              <CriterionGroup title="Interpersonal" items={ipItems} labelMap={labelByCriterionId} />
+              <CriterionGroup title={t('domain.interpersonal')} items={ipItems} labelMap={labelByCriterionId} />
             )}
           </div>
         </div>
@@ -758,7 +753,7 @@ function EvaluationBody({ evaluation, patient, c }: BodyProps) {
         {evaluation.highlights.length > 0 && (
           <div className="plush" style={{ background: 'var(--mint)', padding: 16 }}>
             <div className="chip" style={{ background: 'white', marginBottom: 10 }}>
-              {'\u2713 HIGHLIGHTS'}
+              {t('debrief.highlights')}
             </div>
             <ul style={{ margin: 0, paddingLeft: 18, fontWeight: 700, fontSize: 14, lineHeight: 1.6 }}>
               {evaluation.highlights.map((h, i) => <li key={i}>{h}</li>)}
@@ -768,7 +763,7 @@ function EvaluationBody({ evaluation, patient, c }: BodyProps) {
         {evaluation.improvements.length > 0 && (
           <div className="plush" style={{ background: 'var(--peach)', padding: 16 }}>
             <div className="chip" style={{ background: 'white', marginBottom: 10 }}>
-              {'\u2191 NEXT TIME'}
+              {t('debrief.nextTime')}
             </div>
             <ul style={{ margin: 0, paddingLeft: 18, fontWeight: 700, fontSize: 14, lineHeight: 1.6 }}>
               {evaluation.improvements.map((h, i) => <li key={i}>{h}</li>)}
@@ -778,7 +773,7 @@ function EvaluationBody({ evaluation, patient, c }: BodyProps) {
       </div>
 
       <div className="plush" style={{ padding: 16, marginBottom: 22 }}>
-        <SectionLabel>ACTIONS YOU TOOK</SectionLabel>
+        <SectionLabel>{t('debrief.actionsTaken')}</SectionLabel>
         <ActionChips patient={patient} c={c} />
       </div>
 
@@ -793,7 +788,7 @@ function EvaluationBody({ evaluation, patient, c }: BodyProps) {
         }}
       >
         <div>
-          <div style={{ fontWeight: 900, fontSize: 16 }}>Encounter</div>
+          <div style={{ fontWeight: 900, fontSize: 16 }}>{t('debrief.encounter')}</div>
           <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink-2)' }}>
             {`${elapsedLabel} \u00B7 ${patient.askedQuestionIds.length} history questions \u00B7 ${patient.orderedTestIds.length} tests \u00B7 ${patient.givenTreatmentIds.length} treatments`}
           </div>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { DoodleScatter, PatientFace, TopBar } from './primitives';
 import { getCase } from '../data/cases';
 import { store, useStore, useTweaks } from '../game/store';
@@ -9,14 +10,15 @@ interface Item {
   sub: string;
 }
 
-const ITEMS: Item[] = [
-  { id: 'sum', label: 'Have you summarised back to the patient?', sub: 'A short read-back of the story.' },
-  { id: 'safe', label: 'Have you safety-netted?', sub: 'What to look for, when to come back.' },
-  { id: 'ice', label: 'Have you addressed their ideas, concerns, expectations?', sub: 'Did the patient feel heard?' },
-];
-
 export function EndConfirmScreen() {
+  const { t } = useTranslation();
   const tweaks = useTweaks();
+
+  const ITEMS: Item[] = [
+    { id: 'sum', label: t('endConfirm.sumLabel'), sub: t('endConfirm.sumSub') },
+    { id: 'safe', label: t('endConfirm.safeLabel'), sub: t('endConfirm.safeSub') },
+    { id: 'ice', label: t('endConfirm.iceLabel'), sub: t('endConfirm.iceSub') },
+  ];
   const checked = useStore((s) => s.endConfirm);
   const caseId = useStore((s) => s.selectedCaseId);
   const c = getCase(caseId);
@@ -86,9 +88,9 @@ export function EndConfirmScreen() {
           </div>
 
           <div className="chip butter" style={{ marginBottom: 16 }}>
-            BEFORE YOU FINISH
+            {t('endConfirm.chip')}
           </div>
-          <h1 style={{ fontSize: 32, lineHeight: 1.1, marginBottom: 8 }}>Take a breath.</h1>
+          <h1 style={{ fontSize: 32, lineHeight: 1.1, marginBottom: 8 }}>{t('endConfirm.heading')}</h1>
           <div
             style={{
               fontSize: 15,
@@ -98,7 +100,7 @@ export function EndConfirmScreen() {
               maxWidth: 460,
             }}
           >
-            One last check — these affect your debrief. Tick what you actually did.
+            {t('endConfirm.subtitle')}
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 22 }}>
@@ -153,7 +155,7 @@ export function EndConfirmScreen() {
               style={{ flex: 1 }}
               onClick={() => store.setScreen('encounter')}
             >
-              ← Back to the room
+              {t('endConfirm.backToRoom')}
             </button>
             <button
               type="button"
@@ -161,7 +163,7 @@ export function EndConfirmScreen() {
               style={{ flex: 1.4 }}
               onClick={() => store.setScreen('debrief')}
             >
-              End consultation →
+              {t('endConfirm.endConsultation')}
             </button>
           </div>
         </div>

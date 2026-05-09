@@ -1,4 +1,5 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import type { PerspectiveCamera } from 'three';
@@ -115,7 +116,9 @@ function Loader() {
           letterSpacing: '0.05em',
         }}
       >
-        Loading polyclinic…
+        {/* i18n string handled in EncounterScreen via prop-drilling is complex here;
+          Loader is a Three.js Html component, so we use the global i18n instance directly */}
+      Loading polyclinic…
       </div>
     </Html>
   );
@@ -148,27 +151,9 @@ function Crosshair() {
   );
 }
 
-function Kbd({ children }: { children: React.ReactNode }) {
-  return (
-    <span
-      style={{
-        background: 'var(--cream)',
-        padding: '2px 8px',
-        borderRadius: 6,
-        fontFamily: 'ui-monospace, monospace',
-        fontSize: 11,
-        border: '2px solid var(--line)',
-        boxShadow: '0 2px 0 var(--line)',
-        margin: '0 2px',
-        color: 'var(--ink)',
-      }}
-    >
-      {children}
-    </span>
-  );
-}
 
 export function EncounterScreen() {
+  const { t } = useTranslation();
   const state = useGameState();
   const patient = state.polyclinic.patient;
 
@@ -400,7 +385,7 @@ export function EncounterScreen() {
             }}
             style={{ fontSize: 14, padding: '12px 18px' }}
           >
-            End consultation →
+            {t('encounter.endConsultation')}
           </button>
         </div>
 
@@ -427,7 +412,7 @@ export function EncounterScreen() {
         >
           {pointerLocked ? (
             <>
-              Just talk — voice is live · <Kbd>E</Kbd> examine · <Kbd>T</Kbd> mute · <Kbd>Esc</Kbd> release
+              {t('encounter.hintLocked', { e: 'E', t: 'T', esc: 'Esc' })}
             </>
           ) : (
             <>
@@ -435,7 +420,7 @@ export function EncounterScreen() {
                 className={voiceActive ? 'dot breathe' : 'dot'}
                 style={{ background: voiceActive ? 'var(--peach-deep)' : 'var(--ink-soft)' }}
               />
-              {voiceActive ? 'Voice live' : 'Voice muted'} · click the room to look around · <Kbd>E</Kbd> examine · <Kbd>T</Kbd> mute
+              {voiceActive ? t('encounter.voiceLive') : t('encounter.voiceMuted')}{t('encounter.hintUnlocked', { e: 'E', t: 'T' })}
             </>
           )}
         </div>

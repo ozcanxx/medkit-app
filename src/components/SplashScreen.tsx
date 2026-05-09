@@ -1,8 +1,11 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Doodle, DoodleScatter } from './primitives';
 import { store } from '../game/store';
 
 export function SplashScreen() {
+  const { t } = useTranslation();
+
   // Click anywhere or hit space → onboarding (first run) or home (returning).
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -114,7 +117,7 @@ export function SplashScreen() {
             boxShadow: 'var(--plush-tiny)',
           }}
         >
-          The clinic that lets you make every mistake before they count.
+          {t('splash.tagline')}
         </div>
 
         <div className="popin breathe" style={{ animationDelay: '.3s', marginTop: 24 }}>
@@ -127,7 +130,7 @@ export function SplashScreen() {
               store.beginFromSplash();
             }}
           >
-            ▸ Tap to begin
+            {t('splash.tapToBegin')}
           </button>
         </div>
 
@@ -141,7 +144,7 @@ export function SplashScreen() {
             marginTop: 8,
           }}
         >
-          press{' '}
+          {t('splash.pressSpacePre')}{' '}
           <span
             style={{
               background: 'white',
@@ -151,9 +154,9 @@ export function SplashScreen() {
               boxShadow: '0 2px 0 var(--line)',
             }}
           >
-            space
-          </span>{' '}
-          to continue
+            {t('splash.space')}
+          </span>
+          {t('splash.pressSpacePost') ? ` ${t('splash.pressSpacePost')}` : ''}
         </div>
       </div>
 

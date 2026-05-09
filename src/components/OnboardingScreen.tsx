@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Doodle, DoodleScatter } from './primitives';
 import { store, useStore } from '../game/store';
 
@@ -10,35 +11,34 @@ interface Card {
   tag: string;
 }
 
-const CARDS: Card[] = [
-  {
-    bg: 'var(--peach)',
-    title: 'What this is.',
-    body:
-      "A clinic full of simulated patients with histories, symptoms, and stories. You'll talk to them out loud, decide what to do, and get a structured debrief — every claim cited to a real published guideline.",
-    icon: <Doodle kind="stetho" size={140} color="var(--mint)" />,
-    tag: '01 · meet medkit',
-  },
-  {
-    bg: 'var(--mint)',
-    title: 'How it works.',
-    body:
-      'Pick a clinic. The next patient is called in. You speak; they answer in conversation. You order labs, prescribe, counsel, refer. At the end, a senior clinician walks you through what you did well and what to work on. Five to eight minutes per case. Patient conversations powered by Claude Opus 4.7.',
-    icon: <Doodle kind="cross" size={140} color="#F47A92" />,
-    tag: '02 · the loop',
-  },
-  {
-    bg: 'var(--sky)',
-    title: "Who it's for.",
-    body:
-      'For medical students, residents, and doctors preparing for OSCE-style exams. This is a training simulator, not a clinical tool. Never used to give real medical advice.',
-    icon: <Doodle kind="heart" size={140} color="#F47A92" />,
-    tag: '03 · safety line',
-  },
-];
-
 export function OnboardingScreen() {
+  const { t } = useTranslation();
   const step = useStore((s) => s.onboardingStep);
+
+  const CARDS: Card[] = [
+    {
+      bg: 'var(--peach)',
+      title: t('onboarding.card1Title'),
+      body: t('onboarding.card1Body'),
+      icon: <Doodle kind="stetho" size={140} color="var(--mint)" />,
+      tag: t('onboarding.card1Tag'),
+    },
+    {
+      bg: 'var(--mint)',
+      title: t('onboarding.card2Title'),
+      body: t('onboarding.card2Body'),
+      icon: <Doodle kind="cross" size={140} color="#F47A92" />,
+      tag: t('onboarding.card2Tag'),
+    },
+    {
+      bg: 'var(--sky)',
+      title: t('onboarding.card3Title'),
+      body: t('onboarding.card3Body'),
+      icon: <Doodle kind="heart" size={140} color="#F47A92" />,
+      tag: t('onboarding.card3Tag'),
+    },
+  ];
+
   const card = CARDS[step];
 
   return (
@@ -139,11 +139,11 @@ export function OnboardingScreen() {
           style={{ visibility: step === 0 ? 'hidden' : 'visible' }}
           onClick={() => store.setOnboardingStep(step - 1)}
         >
-          ← Back
+          {t('onboarding.back')}
         </button>
         {step < CARDS.length - 1 ? (
           <button type="button" className="btn-plush primary" onClick={() => store.setOnboardingStep(step + 1)}>
-            Next →
+            {t('onboarding.next')}
           </button>
         ) : (
           <button
@@ -152,7 +152,7 @@ export function OnboardingScreen() {
             style={{ fontSize: 20 }}
             onClick={() => store.finishOnboarding()}
           >
-            Take me in →
+            {t('onboarding.enter')}
           </button>
         )}
       </div>
