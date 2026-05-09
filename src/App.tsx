@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { store, useScreen, useTweaks } from './game/store';
 import { applyIntensity, applyPalette } from './styles/palettes';
 import { SplashScreen } from './components/SplashScreen';
@@ -19,6 +20,7 @@ import { BackgroundMusic } from './components/BackgroundMusic';
 export default function App() {
   const screen = useScreen();
   const tweaks = useTweaks();
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     applyPalette(tweaks.palette);
@@ -42,6 +44,35 @@ export default function App() {
 
   return (
     <div className="app">
+      {/* Dil Seçim Menüsü (Başlangıç Ekranı - Sayfanın Ortası) */}
+      {screen === 'splash' && (
+        <div style={{ 
+          position: 'absolute', 
+          top: '50%', 
+          left: '50%', 
+          transform: 'translate(-50%, -50%)', 
+          zIndex: 9999, 
+          background: 'var(--paper)', 
+          padding: '24px 32px', 
+          borderRadius: 'var(--r-md)', 
+          border: 'var(--stroke-thick) solid var(--line)', 
+          boxShadow: 'var(--plush)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '16px'
+        }}>
+          <label htmlFor="language-select" style={{ fontWeight: 800, fontSize: '22px', color: 'var(--ink)' }}>{t('selectLanguage', 'Dil Seçiniz')}</label>
+          <select id="language-select" value={i18n.language} onChange={(e) => i18n.changeLanguage(e.target.value)} style={{ padding: '8px 16px', borderRadius: 'var(--r-sm)', border: '2.5px solid var(--line)', fontSize: '16px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', color: 'var(--ink)' }}>
+            <option value="tr">Türkçe</option>
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+            <option value="de">Deutsch</option>
+            <option value="el">Ελληνικά</option>
+          </select>
+        </div>
+      )}
+
       {screen === 'splash' && <SplashScreen />}
       {screen === 'onboarding' && <OnboardingScreen />}
       {screen === 'home' && <HomeScreen />}
